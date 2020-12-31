@@ -1,0 +1,36 @@
+@page "/"
+@inject IJSRuntime JSRuntime
+
+<h1>Fun Blazor Web Camera Application</h1>
+<div>
+    <button @onclick="Start">Start</button>
+</div>
+<div>
+    <video id="@options.VideoID"
+        style="background-color:lightblue;"
+        width="@options.Width" autoplay="true">Click start to show video
+    </video>
+    <video id="remote"
+        style="background-color:lightblue;"
+        width="@options.Width" autoplay="true">Click start to show video
+    </video>
+</div>
+@code{
+    WebCamOptions options = new WebCamOptions() 
+    { 
+        CanvasID = "canvas",
+        VideoID = "video"
+    };
+
+    protected override void OnInitialized()
+    {
+        @* options.Filter = 
+            "contrast(1.4) sepia(0.2) blur(3px) saturate(200%) hue-rotate(200deg)"; *@
+        options.Width = 480;
+    }
+
+    public async Task Start()
+    {
+        await JSRuntime.InvokeVoidAsync("WebCamFunctions.start", options);
+    }
+}
