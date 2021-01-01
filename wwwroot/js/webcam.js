@@ -5,14 +5,12 @@ let streaming = false;
 
 let width = 100;    // We will scale the photo width to this.
 let height = 0;     // This will be computed based on the input stream
-let filter = 'sepia(1)';
 
 var mediaConstraints = {
     audio: true, // We want an audio track
     video: true // ...and we want a video track
 };
 
-// RTCPeerConnection
 let rtcConnection = null
 let myVideoStream = null
 
@@ -39,11 +37,10 @@ srConnection.on("Receive", data => {
 console.log(message)
     if (message.sdp) {
         if (message.sdp.type == 'offer') {
-            console.log('received offer, sending answer...');
             createPeerConnection()
             rtcConnection.setRemoteDescription(new RTCSessionDescription(message.sdp))
             .then(function () {
-                return navigator.mediaDevices.getUserMedia(mediaConstraints);
+                return navigator.mediaDevices.getDisplayMedia(mediaConstraints);
             })
             .then(function(stream) {
                 myVideoStream = stream
@@ -54,23 +51,19 @@ console.log(message)
                 rtcConnection.addStream(myVideoStream);
             })
             .then(function() {
-                // Create an SDP response
                 return rtcConnection.createAnswer()
             })
             .then(function (answer) {
                 return rtcConnection.setLocalDescription(answer);
             })
             .then(function() {
-                // And send it to the originator, where it will become their RemoteDescription
                 srConnection.invoke("Send", JSON.stringify({ 'sdp': rtcConnection.localDescription }))
             })
         }
         else if (message.sdp.type == 'answer') {
-            console.log('got an answer');
             rtcConnection.setRemoteDescription(new RTCSessionDescription(message.sdp))
         }
     } else if (message.candidate) {
-        console.log('adding ice candidate from signalr');
         rtcConnection.addIceCandidate(new RTCIceCandidate(message.candidate));
     }
 });
@@ -110,11 +103,10 @@ function createPeerConnection()
 function onStart(options) {
     video = document.getElementById(options.videoID);
     width = options.width;
-    filter = options.filter;
 
     createPeerConnection()
 
-    navigator.mediaDevices.getUserMedia(mediaConstraints)
+    navigator.mediaDevices.getDisplayMedia(mediaConstraints)
         .then(function (stream) {
             video.srcObject = stream
             myVideoStream = stream
