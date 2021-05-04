@@ -22,7 +22,7 @@ Configuring SignalR in this project is quite simple. To save bouncing around lot
 
 The first step is to tell your ASP.NET application to use SignalR. In the `ConfigureServices` method of your `Startup.cs` file add the following:
 
-```
+```cs
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddSignalR(); // add signalr
@@ -33,7 +33,7 @@ The first step is to tell your ASP.NET application to use SignalR. In the `Confi
 
 Then in the `Configure` method add the following to the UseEndpoints block of code:
 
-```
+```cs
     app.UseEndpoints(endpoints =>
     {
         endpoints.MapBlazorHub();
@@ -46,7 +46,7 @@ Then you need to add a SignalR hub that will respond to calls to the `/webrtc` e
 
 It's important that this class is a subclass of Hub, which is defined in the `Microsoft.AspNetCore.SignalR` namespace:
 
-```
+```cs
     public class WebRtcService : Hub
     {
         public async Task Send(string message)
@@ -63,14 +63,14 @@ The last step is to enable SignalR on the client side. This requires downloading
 
 You can reference it directly from CDN using the following HTML:
 
-```
+```html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.7/signalr.min.js"></script>
 ```
 (I downloaded it and referenced it locally, personal preference 😊, if you want to do this download the file to the `/wwwroot` directory of your project)
 
 The reference in `/Pages/_Host.cshtml` can be added below the reference to `_framework/blazor.server.js`:
 
-```
+```html
     <script src="_framework/blazor.server.js"></script>
     <script src="js/signalr.js"></script>
 ```
@@ -124,7 +124,7 @@ Add another Javascript file to your project and put it in the `/wwwroot` folder,
 
 The first thing I do when the page loads is to ensure i'm connected (and stay connected) to SignalR on the server:
 
-```
+```js
 const srConnection = new signalR.HubConnectionBuilder()
     .withUrl("/webrtc")
     .configureLogging(signalR.LogLevel.Information)
@@ -150,7 +150,7 @@ start();
 The above code connects the SignalR client to the `/webrtc` path defined in `Startup.cs`. If the connection closes it will be re-established, and the initial connection is started.
 
 Next, I wire up the WASM->JS interop code:
-```
+```js
 window.WebCamFunctions = {
     start: (options) => { onStart(options); } 
 };
@@ -195,7 +195,7 @@ This starts the ICE process which will negotiate the correct candidate for media
 
 The code to create a peer connection will handle the flow of the negotiation, offers and answers that are used to establish the call:
 
-```
+```js
 function createPeerConnection()
 {
     rtcConnection = new RTCPeerConnection(null)
@@ -236,7 +236,7 @@ The `onnegotiationneeded` event will create an offer. This is essentially offeri
 
 It's worth noting at this point the specific line:
 
-```
+```js
 srConnection.invoke("Send", JSON.stringify({"sdp": rtcConnection.localDescription}))
 ```
 
@@ -247,7 +247,7 @@ This demonstrates two things:
 
 So, how does the callee know when a call has been made? Remember the SignalR server will call `Receive` on each connected client? We add that to the SignalR client in Javascript:
 
-```
+```js
 srConnection.on("Receive", data => {
     var message = JSON.parse(data)
 
