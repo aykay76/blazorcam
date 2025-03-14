@@ -10,7 +10,7 @@ Create a blazor server by creating an empty directory and running:
 
 This creates a template application with a simple navigation system and some example pages. These can be deleted if not required, to keep the project clean.
 
-Having read a little about WebRTC I knew that a signalling server is required. This correlates events or instructions between the clients of a WebRTC session. The ideal choice for this, IMHO, is SignalR as it fits with the ASP.NET ecosystem and is simple to implement (I have another example of using it in a game server [here](https://github.com/ayay76/gameserver)).
+Having read a little about WebRTC I knew that a signalling server is required. This correlates events or instructions between the clients of a WebRTC session. The ideal choice for this, IMHO, is SignalR as it fits with the ASP.NET ecosystem and is simple to implement (I have another example of using it in a game server [here](https://github.com/aykay76/gameserver)).
 
 To incorporate SignalR run:
 
@@ -308,3 +308,23 @@ The full tutorial on how to do this can be found [here on the Mozilla Developer 
 
 I was amazed at how simple this was to set up. I hope it serves as a useful starter for you also. Please feel free to fork this repository, I would be interested to hear any enhancements I haven't thought of.
 
+
+# 2025 Update
+
+In recent years I have switched to a Macbook for day-to-day development, and noticed that port 5000 is taken by the Control Centre. You may also see a port clash, you can identify what's running by executing:
+
+`lsof -i:5000`
+
+And you may see something like:
+
+```
+COMMAND    PID    USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+ControlCe 3848 vanilla   10u  IPv4 0x3a19d881e570c7bd      0t0  TCP *:commplex-main (LISTEN)
+ControlCe 3848 vanilla   11u  IPv6 0x1e7df997af5684a0      0t0  TCP *:commplex-main (LISTEN)
+```
+
+So I changed the port numbers in `launchSettings.json` and all is good - note that the hostname must match your computer's name on the network also.
+
+I have also updated this for .net 9.0 as 5.0 is out of support.
+
+I haven't done a lot with this project since I started it, it was really just to learn something new. But it's getting some attention, thanks for that! :)
